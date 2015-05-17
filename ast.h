@@ -4,6 +4,7 @@
 
 enum {
 	AST_INTEGER,
+	AST_FUNC,
 	AST_OP_ADD,
 	AST_OP_SUB,
 	AST_OP_MUL,

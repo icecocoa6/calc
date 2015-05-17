@@ -46,15 +46,17 @@ extern int yydebug;
   enum yytokentype
   {
     INTEGER = 258,
-    ADD = 259,
-    SUB = 260,
-    MUL = 261,
-    DIV = 262,
-    EQ = 263,
-    LP = 264,
-    RP = 265,
-    ASSIGN = 266,
-    LF = 267
+    SYMBOL = 259,
+    ADD = 260,
+    SUB = 261,
+    MUL = 262,
+    DIV = 263,
+    EQ = 264,
+    LP = 265,
+    RP = 266,
+    ASSIGN = 267,
+    COMMA = 268,
+    LF = 269
   };
 #endif
 
@@ -66,10 +68,10 @@ union YYSTYPE
 #line 10 "calc.y" /* yacc.c:1909  */
 
 	int integer;
-	char *string;
+	char string[64];
 	ast_node node;
 
-#line 73 "calc.tab.h" /* yacc.c:1909  */
+#line 75 "calc.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

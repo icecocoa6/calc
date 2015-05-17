@@ -1,6 +1,8 @@
 
 %{
 
+#include <string.h>
+
 #include "ast.h"
 #include "calc.tab.h"
 
@@ -20,10 +22,16 @@ int yywrap() {
 ")" return (RP);
 "=" return (EQ);
 ":=" return (ASSIGN);
+"," return (COMMA);
 
 [[:digit:]]+ {
 	sscanf(yytext, "%d", &yylval.integer);
 	return (INTEGER);
+}
+
+[[:alpha:]_][[:alnum:]]* {
+	strncpy(yylval.string, yytext, 63);
+	return (SYMBOL);
 }
 
 [[:blank:]]+ { }

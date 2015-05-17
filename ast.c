@@ -35,6 +35,18 @@ void show_ast_node(ast_node n) {
 		case AST_INTEGER:
 			printf("%d", n->value);
 			break;
+		case AST_FUNC:
+			printf("call(");
+			{
+				ast_node node = n->left;
+				while (node) {
+					show_ast_node(node);
+					node = node->left;
+					if (node) printf(",");
+				}
+			}
+			printf(")");
+			break;
 		case AST_OP_ADD:
 			printf("ADD(");
 			show_ast_node(n->left);
