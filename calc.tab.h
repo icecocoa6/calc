@@ -65,11 +65,11 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 10 "calc.y" /* yacc.c:1909  */
+#line 12 "calc.y" /* yacc.c:1909  */
 
 	int integer;
 	char string[64];
-	ast_node node;
+	ASTNode node;
 
 #line 75 "calc.tab.h" /* yacc.c:1909  */
 };

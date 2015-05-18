@@ -5,12 +5,14 @@
 
 #include "ast.h"
 
+extern ASTNode constant_folding(ASTNode node);
+
 %}
 
 %union {
 	int integer;
 	char string[64];
-	ast_node node;
+	ASTNode node;
 }
 
 %defines
@@ -45,6 +47,8 @@ line
     : expr "\n"
     {
         show_ast_node($1);
+        printf("\n\t-> ");
+        show_ast_node(constant_folding($1));
         printf("\n");
     }
 
@@ -55,35 +59,35 @@ expr
     }
     | expr "+" expr
     {
-        ast_node n = create_ast_node(AST_OP_ADD, 0);
+        ASTNode n = create_ast_node(AST_OP_ADD, 0);
         set_ast_node_left(n, $1);
         set_ast_node_right(n, $3);
         $$ = n;
     }
     | expr "-" expr
     {
-        ast_node n = create_ast_node(AST_OP_SUB, 0);
+        ASTNode n = create_ast_node(AST_OP_SUB, 0);
         set_ast_node_left(n, $1);
         set_ast_node_right(n, $3);
         $$ = n;
     }
     | expr "*" expr
     {
-        ast_node n = create_ast_node(AST_OP_MUL, 0);
+        ASTNode n = create_ast_node(AST_OP_MUL, 0);
         set_ast_node_left(n, $1);
         set_ast_node_right(n, $3);
         $$ = n;
     }
     | expr "/" expr
     {
-        ast_node n = create_ast_node(AST_OP_DIV, 0);
+        ASTNode n = create_ast_node(AST_OP_DIV, 0);
         set_ast_node_left(n, $1);
         set_ast_node_right(n, $3);
         $$ = n;
     }
     | "-" expr
     {
-        ast_node n = create_ast_node(AST_OP_MUL, 0);
+        ASTNode n = create_ast_node(AST_OP_MUL, 0);
         set_ast_node_left(n, create_ast_node(AST_INTEGER, -1));
         set_ast_node_right(n, $2);
         $$ = n;
@@ -98,14 +102,14 @@ expr
     }
     | expr "=" expr
     {
-        ast_node n = create_ast_node(AST_OP_EQ, 0);
+        ASTNode n = create_ast_node(AST_OP_EQ, 0);
         set_ast_node_left(n, $1);
         set_ast_node_right(n, $3);
         $$ = n;
     }
     | SYMBOL expr
     {
-        ast_node n = create_ast_node(AST_FUNC, 0 /* TODO: proper value */);
+        ASTNode n = create_ast_node(AST_FUNC, 0 /* TODO: proper value */);
         set_ast_node_left(n, $2);
         $$ = n;
     }
