@@ -4,8 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-ast_node create_ast_node(int kind, int value) {
-	ast_node result = (ast_node)calloc(1, sizeof(struct __ast_node));
+ASTNode create_ast_node(int kind, int value) {
+	ASTNode result = (ASTNode)calloc(1, sizeof(struct __ast_node));
 	if (!result) {
 		fprintf(stderr, "cannot allocate AST node.\n");
 		return NULL;
@@ -15,22 +15,52 @@ ast_node create_ast_node(int kind, int value) {
 	return result;
 }
 
-void destroy_ast_node(ast_node n) {
+ASTNode copy_ast_node(ASTNode node) {
+	ASTNode result = create_ast_node(node->kind, node->value);
+
+	if (node->left) {
+		set_ast_node_left(result, copy_ast_node(node->left));
+	}
+	if (node->right) {
+		set_ast_node_right(result, copy_ast_node(node->right));
+	}
+
+	return result;
+}
+
+void destroy_ast_node(ASTNode n) {
 	free(n);
 }
 
-void set_ast_node_left(ast_node parent, ast_node child) {
+void set_ast_node_left(ASTNode parent, ASTNode child) {
 	parent->left = child;
 	child->parent = parent;
 }
 
-void set_ast_node_right(ast_node parent, ast_node child) {
+void set_ast_node_right(ASTNode parent, ASTNode child) {
 	parent->right = child;
 	child->parent = parent;
 }
 
+int is_constant_ast_node(ASTNode node) {
+	return node && node->kind == AST_INTEGER;
+}
 
-void show_ast_node(ast_node n) {
+int is_left(ASTNode node) {
+	if (!node) return 0;
+	if (!node->parent) return 0;
+	return node->parent->left == node;
+}
+
+int is_right(ASTNode node) {
+	if (!node) return 0;
+	if (!node->parent) return 0;
+	return node->parent->right == node;
+}
+
+/*****/
+
+void show_ast_node(ASTNode n) {
 	switch (n->kind) {
 		case AST_INTEGER:
 			printf("%d", n->value);
@@ -38,7 +68,7 @@ void show_ast_node(ast_node n) {
 		case AST_FUNC:
 			printf("call(");
 			{
-				ast_node node = n->left;
+				ASTNode node = n->left;
 				while (node) {
 					show_ast_node(node);
 					node = node->left;

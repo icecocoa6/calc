@@ -5,6 +5,8 @@
 enum {
 	AST_INTEGER,
 	AST_FUNC,
+	AST_VAR,
+	AST_FREE_VAR,
 	AST_OP_ADD,
 	AST_OP_SUB,
 	AST_OP_MUL,
@@ -12,25 +14,32 @@ enum {
 	AST_OP_EQ,
 };
 
-typedef struct __ast_node *ast_node;
+typedef struct __ast_node *ASTNode;
 struct __ast_node {
 	int kind;
 	int value;
 
-	ast_node left;
-	ast_node right;
+	ASTNode left;
+	ASTNode right;
 
-	ast_node parent;
+	ASTNode parent;
 };
 
 /* creation and destruction */
-ast_node create_ast_node(int kind, int value);
-void destroy_ast_node(ast_node n);
+ASTNode create_ast_node(int kind, int value);
+ASTNode copy_ast_node(ASTNode node);
+void destroy_ast_node(ASTNode n);
 
-void set_ast_node_left(ast_node parent, ast_node child);
-void set_ast_node_right(ast_node parent, ast_node child);
+void set_ast_node_left(ASTNode parent, ASTNode child);
+void set_ast_node_right(ASTNode parent, ASTNode child);
+
+/* cheking information */
+int is_constant_ast_node(ASTNode node);
+
+int is_left(ASTNode node);
+int is_right(ASTNode node);
 
 /* for debug. */
-void show_ast_node(ast_node n);
+void show_ast_node(ASTNode n);
 
 #endif /* __AST_H_INCLUDED__ */
