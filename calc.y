@@ -9,6 +9,8 @@
 
 extern ASTNode constant_folding(ASTNode node);
 extern SymbolTable symbols;
+extern Rule rules[256];
+extern int rules_count;
 
 %}
 
@@ -56,7 +58,24 @@ line
         if ($1) {
             show_ast_node($1);
             printf("\n\t-> ");
-            show_ast_node(constant_folding($1));
+
+            ASTNode t = $1;
+            int matched = 1;
+            while (matched) {
+                matched = 0;
+                t = constant_folding(t);
+
+                for (int i = 0; i < rules_count; i++) {
+                    ASTNode tree = apply_rule(rules[i], t);
+                    if (tree) {
+                        t = tree;
+                        matched = 1;
+                        break;
+                    }
+                }
+            }
+
+            show_ast_node(constant_folding(t));
             printf("\n");
         }
     }
@@ -137,6 +156,7 @@ expr
         printf("\n");
 
         Rule rule = create_rule($2, $4, $1);
+        rules[rules_count++] = rule;
 
         printf("\t->");
         show_ast_node(rule->pattern);

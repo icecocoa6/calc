@@ -10,9 +10,13 @@ int pattern_matching(ASTNode node, ASTNode pattern, Rule rule);
 ASTNode bind_free_variables(ASTNode tree, ASTNode bindings[]);
 void substitute_variables(ASTNode tree, int from, int to);
 
+int matches(ASTNode node, Rule rule);
+ASTNode create_bound_goal(Rule rule);
+
 
 Rule create_rule(ASTNode pattern, ASTNode goal, ASTNode freeVars) {
 	Rule r = (Rule)calloc(1, sizeof(struct __rule));
+	r->numOfFreeVars = 0;
 	r->pattern = copy_ast_node(pattern);
 	r->goal = copy_ast_node(goal);
 
@@ -23,6 +27,9 @@ Rule create_rule(ASTNode pattern, ASTNode goal, ASTNode freeVars) {
 
 		freeVars = freeVars->left;
 	}
+
+	r->bindings = calloc(r->numOfFreeVars, sizeof(Rule));
+
 	return r;
 }
 
@@ -47,7 +54,7 @@ int pattern_matching(ASTNode node, ASTNode pattern, Rule rule) {
 	if (node->kind != pattern->kind || node->value != pattern->value) return 0;
 
 	return pattern_matching(node->left, pattern->left, rule) &&
-			pattern_matching(node->right, pattern->right, rule);
+	pattern_matching(node->right, pattern->right, rule);
 }
 
 ASTNode bind_free_variables(ASTNode tree, ASTNode bindings[]) {
@@ -70,13 +77,13 @@ ASTNode bind_free_variables(ASTNode tree, ASTNode bindings[]) {
 
 void substitute_variables(ASTNode tree, int from, int to) {
 	if (!tree) return;
-    if (tree->kind == AST_VAR && tree->value == from) {
-        tree->kind = AST_FREE_VAR;
-        tree->value = to;
-    }
+	if (tree->kind == AST_VAR && tree->value == from) {
+		tree->kind = AST_FREE_VAR;
+		tree->value = to;
+	}
 
-    substitute_variables(tree->left, from, to);
-    substitute_variables(tree->right, from, to);
+	substitute_variables(tree->left, from, to);
+	substitute_variables(tree->right, from, to);
 }
 
 //////
@@ -84,6 +91,34 @@ ASTNode create_bound_goal(Rule rule) {
 	return bind_free_variables(rule->goal, rule->bindings);
 }
 
+
+ASTNode apply_rule(Rule rule, ASTNode tree) {
+	if (!tree) return NULL;
+
+	if (matches(tree, rule)) {
+		return create_bound_goal(rule);
+	}
+
+	ASTNode t = apply_rule(rule, tree->left);
+	if (t) {
+		ASTNode s = create_ast_node(tree->kind, tree->value);
+		s->parent = tree->parent;
+		set_ast_node_left(s, t);
+		set_ast_node_right(s, tree->right);
+		return s;
+	}
+
+	t = apply_rule(rule, tree->right);
+	if (t) {
+		ASTNode s = create_ast_node(tree->kind, tree->value);
+		s->parent = tree->parent;
+		set_ast_node_left(s, tree->left);
+		set_ast_node_right(s, t);
+		return s;
+	}
+
+	return NULL;
+}
 
 ASTNode constant_folding(ASTNode node) {
 	if (!node) return NULL;

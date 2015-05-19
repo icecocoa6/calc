@@ -14,9 +14,7 @@ struct __rule {
 
 Rule create_rule(ASTNode pattern, ASTNode goal, ASTNode freeVars);
 
-int matches(ASTNode node, Rule rule);
-ASTNode create_bound_goal(Rule rule);
-
+ASTNode apply_rule(Rule rule, ASTNode node);
 
 ASTNode constant_folding(ASTNode node);
 

@@ -67,7 +67,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 15 "calc.y" /* yacc.c:1909  */
+#line 17 "calc.y" /* yacc.c:1909  */
 
 	int integer;
 	char string[64];

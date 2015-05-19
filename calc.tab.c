@@ -73,9 +73,11 @@
 
 extern ASTNode constant_folding(ASTNode node);
 extern SymbolTable symbols;
+extern Rule rules[256];
+extern int rules_count;
 
 
-#line 79 "calc.tab.c" /* yacc.c:339  */
+#line 81 "calc.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -132,13 +134,13 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 15 "calc.y" /* yacc.c:355  */
+#line 17 "calc.y" /* yacc.c:355  */
 
 	int integer;
 	char string[64];
 	ASTNode node;
 
-#line 142 "calc.tab.c" /* yacc.c:355  */
+#line 144 "calc.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -155,7 +157,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 159 "calc.tab.c" /* yacc.c:358  */
+#line 161 "calc.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -454,9 +456,9 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    49,    49,    50,    54,    63,    69,    73,    80,    87,
-      94,   101,   109,   113,   120,   127,   132,   151,   155,   161,
-     166,   175,   179
+       0,    51,    51,    52,    56,    82,    88,    92,    99,   106,
+     113,   120,   128,   132,   139,   146,   151,   171,   175,   181,
+     186,   195,   199
 };
 #endif
 
@@ -1255,130 +1257,147 @@ yyreduce:
   switch (yyn)
     {
         case 4:
-#line 55 "calc.y" /* yacc.c:1646  */
+#line 57 "calc.y" /* yacc.c:1646  */
     {
         if ((yyvsp[-1].node)) {
             show_ast_node((yyvsp[-1].node));
             printf("\n\t-> ");
-            show_ast_node(constant_folding((yyvsp[-1].node)));
+
+            ASTNode t = (yyvsp[-1].node);
+            int matched = 1;
+            while (matched) {
+                matched = 0;
+                t = constant_folding(t);
+
+                for (int i = 0; i < rules_count; i++) {
+                    ASTNode tree = apply_rule(rules[i], t);
+                    if (tree) {
+                        t = tree;
+                        matched = 1;
+                        break;
+                    }
+                }
+            }
+
+            show_ast_node(constant_folding(t));
             printf("\n");
         }
     }
-#line 1268 "calc.tab.c" /* yacc.c:1646  */
+#line 1287 "calc.tab.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 64 "calc.y" /* yacc.c:1646  */
+#line 83 "calc.y" /* yacc.c:1646  */
     {
         yyerrok;
     }
-#line 1276 "calc.tab.c" /* yacc.c:1646  */
+#line 1295 "calc.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 70 "calc.y" /* yacc.c:1646  */
+#line 89 "calc.y" /* yacc.c:1646  */
     {
         (yyval.node) = create_ast_node(AST_INTEGER, (yyvsp[0].integer));
     }
-#line 1284 "calc.tab.c" /* yacc.c:1646  */
+#line 1303 "calc.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 74 "calc.y" /* yacc.c:1646  */
+#line 93 "calc.y" /* yacc.c:1646  */
     {
         ASTNode n = create_ast_node(AST_OP_ADD, 0);
         set_ast_node_left(n, (yyvsp[-2].node));
         set_ast_node_right(n, (yyvsp[0].node));
         (yyval.node) = n;
     }
-#line 1295 "calc.tab.c" /* yacc.c:1646  */
+#line 1314 "calc.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 81 "calc.y" /* yacc.c:1646  */
+#line 100 "calc.y" /* yacc.c:1646  */
     {
         ASTNode n = create_ast_node(AST_OP_SUB, 0);
         set_ast_node_left(n, (yyvsp[-2].node));
         set_ast_node_right(n, (yyvsp[0].node));
         (yyval.node) = n;
     }
-#line 1306 "calc.tab.c" /* yacc.c:1646  */
+#line 1325 "calc.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 88 "calc.y" /* yacc.c:1646  */
+#line 107 "calc.y" /* yacc.c:1646  */
     {
         ASTNode n = create_ast_node(AST_OP_MUL, 0);
         set_ast_node_left(n, (yyvsp[-2].node));
         set_ast_node_right(n, (yyvsp[0].node));
         (yyval.node) = n;
     }
-#line 1317 "calc.tab.c" /* yacc.c:1646  */
+#line 1336 "calc.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 95 "calc.y" /* yacc.c:1646  */
+#line 114 "calc.y" /* yacc.c:1646  */
     {
         ASTNode n = create_ast_node(AST_OP_DIV, 0);
         set_ast_node_left(n, (yyvsp[-2].node));
         set_ast_node_right(n, (yyvsp[0].node));
         (yyval.node) = n;
     }
-#line 1328 "calc.tab.c" /* yacc.c:1646  */
+#line 1347 "calc.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 103 "calc.y" /* yacc.c:1646  */
+#line 122 "calc.y" /* yacc.c:1646  */
     {
         ASTNode n = create_ast_node(AST_OP_MUL, 0);
         set_ast_node_left(n, create_ast_node(AST_INTEGER, -1));
         set_ast_node_right(n, (yyvsp[0].node));
         (yyval.node) = n;
     }
-#line 1339 "calc.tab.c" /* yacc.c:1646  */
+#line 1358 "calc.tab.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 110 "calc.y" /* yacc.c:1646  */
+#line 129 "calc.y" /* yacc.c:1646  */
     {
         (yyval.node) = (yyvsp[-1].node);
     }
-#line 1347 "calc.tab.c" /* yacc.c:1646  */
+#line 1366 "calc.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 114 "calc.y" /* yacc.c:1646  */
+#line 133 "calc.y" /* yacc.c:1646  */
     {
         ASTNode n = create_ast_node(AST_OP_EQ, 0);
         set_ast_node_left(n, (yyvsp[-2].node));
         set_ast_node_right(n, (yyvsp[0].node));
         (yyval.node) = n;
     }
-#line 1358 "calc.tab.c" /* yacc.c:1646  */
+#line 1377 "calc.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 121 "calc.y" /* yacc.c:1646  */
+#line 140 "calc.y" /* yacc.c:1646  */
     {
         int idx = register_sym_table(symbols, (yyvsp[-3].string));
         ASTNode n = create_ast_node(AST_FUNC, idx);
         set_ast_node_left(n, (yyvsp[-1].node));
         (yyval.node) = n;
     }
-#line 1369 "calc.tab.c" /* yacc.c:1646  */
+#line 1388 "calc.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 128 "calc.y" /* yacc.c:1646  */
+#line 147 "calc.y" /* yacc.c:1646  */
     {
         int idx = register_sym_table(symbols, (yyvsp[0].string));
         (yyval.node) = create_ast_node(AST_VAR, idx);
     }
-#line 1378 "calc.tab.c" /* yacc.c:1646  */
+#line 1397 "calc.tab.c" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 133 "calc.y" /* yacc.c:1646  */
+#line 152 "calc.y" /* yacc.c:1646  */
     {
         show_ast_node((yyvsp[-2].node));
         printf(" := ");
@@ -1386,6 +1405,7 @@ yyreduce:
         printf("\n");
 
         Rule rule = create_rule((yyvsp[-2].node), (yyvsp[0].node), (yyvsp[-3].node));
+        rules[rules_count++] = rule;
 
         printf("\t->");
         show_ast_node(rule->pattern);
@@ -1394,63 +1414,63 @@ yyreduce:
         printf("\n");
         (yyval.node) = NULL;
     }
-#line 1398 "calc.tab.c" /* yacc.c:1646  */
+#line 1418 "calc.tab.c" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 152 "calc.y" /* yacc.c:1646  */
+#line 172 "calc.y" /* yacc.c:1646  */
     {
         (yyval.node) = NULL;
     }
-#line 1406 "calc.tab.c" /* yacc.c:1646  */
+#line 1426 "calc.tab.c" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 156 "calc.y" /* yacc.c:1646  */
+#line 176 "calc.y" /* yacc.c:1646  */
     {
         (yyval.node) = (yyvsp[-1].node);
     }
-#line 1414 "calc.tab.c" /* yacc.c:1646  */
+#line 1434 "calc.tab.c" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 162 "calc.y" /* yacc.c:1646  */
+#line 182 "calc.y" /* yacc.c:1646  */
     {
         int idx = register_sym_table(symbols, (yyvsp[0].string));
         (yyval.node) = create_ast_node(AST_VAR, idx);
     }
-#line 1423 "calc.tab.c" /* yacc.c:1646  */
+#line 1443 "calc.tab.c" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 167 "calc.y" /* yacc.c:1646  */
+#line 187 "calc.y" /* yacc.c:1646  */
     {
         int idx = register_sym_table(symbols, (yyvsp[0].string));
         (yyval.node) = create_ast_node(AST_VAR, idx);
         set_ast_node_left((yyval.node), (yyvsp[-2].node));
     }
-#line 1433 "calc.tab.c" /* yacc.c:1646  */
+#line 1453 "calc.tab.c" /* yacc.c:1646  */
     break;
 
   case 21:
-#line 176 "calc.y" /* yacc.c:1646  */
+#line 196 "calc.y" /* yacc.c:1646  */
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 1441 "calc.tab.c" /* yacc.c:1646  */
+#line 1461 "calc.tab.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 180 "calc.y" /* yacc.c:1646  */
+#line 200 "calc.y" /* yacc.c:1646  */
     {
         set_ast_node_left((yyvsp[-2].node), (yyvsp[0].node));
         (yyval.node) = (yyvsp[-2].node);
     }
-#line 1450 "calc.tab.c" /* yacc.c:1646  */
+#line 1470 "calc.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1454 "calc.tab.c" /* yacc.c:1646  */
+#line 1474 "calc.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1678,7 +1698,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 186 "calc.y" /* yacc.c:1906  */
+#line 206 "calc.y" /* yacc.c:1906  */
 
 
 int yyerror(char *s) {

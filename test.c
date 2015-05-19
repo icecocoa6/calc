@@ -5,7 +5,34 @@
 
 #include "ast.h"
 #include "matcher.h"
+#include "symtable.h"
 
+
+void check(int br) {
+	if (br) printf(".");
+	else {
+		printf("Failed.\n");
+		exit(-1);
+	}
+}
+
+void testTable1() {
+	printf("%s\n", __func__);
+	SymbolTable table = create_sym_table();
+
+	check(register_sym_table(table, "x") == 0);
+	check(get_sym_index(table, "x") == 0);
+	check(get_sym_index(table, "X") == -1);
+
+	check(register_sym_table(table, "x") == 0);
+	check(register_sym_table(table, "hoge") == 1);
+	check(get_sym_index(table, "x") == 0);
+	check(get_sym_index(table, "hoge") == 1);
+
+	destroy_sym_table(table);
+
+	printf("\n");
+}
 
 void test1() {
 	/* 5 := 5 */
@@ -51,12 +78,31 @@ void test2() {
 	printf("\n");
 }
 
+void testPattern1() {
+	ASTNode ptn = create_ast_node(AST_VAR, 0);
+	ASTNode goal = create_ast_node(AST_INTEGER, 10);
+	Rule rule = create_rule(ptn, goal, NULL);
+
+	ASTNode tree= create_ast_node(AST_OP_ADD, 0);
+	set_ast_node_left(tree, create_ast_node(AST_VAR, 0));
+	set_ast_node_right(tree, create_ast_node(AST_INTEGER, 4));
+}
+
+SymbolTable symbols;
+int rules_count = 0;
+Rule rules[256] = { NULL };
+
 int main(int argc, char *argv[]) {
+	symbols = create_sym_table();
 	printf("test1: 5 := 5\n");
 	test1();
 
 	printf("test2: a - b := a + (-b)\n");
 	test2();
+
+	testTable1();
+
+	testPattern1();
 
 	return 0;
 }
