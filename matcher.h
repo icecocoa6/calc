@@ -12,6 +12,8 @@ struct __rule {
 	ASTNode *bindings;
 };
 
+Rule create_rule(ASTNode pattern, ASTNode goal, ASTNode freeVars);
+
 int matches(ASTNode node, Rule rule);
 ASTNode create_bound_goal(Rule rule);
 

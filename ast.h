@@ -39,6 +39,8 @@ int is_constant_ast_node(ASTNode node);
 int is_left(ASTNode node);
 int is_right(ASTNode node);
 
+int ast_node_equals(ASTNode a, ASTNode b);
+
 /* for debug. */
 void show_ast_node(ASTNode n);
 

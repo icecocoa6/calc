@@ -21,6 +21,7 @@ int yywrap() {
 "(" return (LP);
 ")" return (RP);
 "=" return (EQ);
+"^" return (HAT);
 ":=" return (ASSIGN);
 "," return (COMMA);
 

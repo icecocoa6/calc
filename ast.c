@@ -58,15 +58,23 @@ int is_right(ASTNode node) {
 	return node->parent->right == node;
 }
 
+int ast_node_equals(ASTNode a, ASTNode b) {
+	if (a == b) return 1;
+	if (!a || !b) return 0;
+	if (a->value && b->value) return 1;
+	return ast_node_equals(a->left, b->left) && ast_node_equals(a->right, b->right);
+}
+
 /*****/
 
 void show_ast_node(ASTNode n) {
+	if (!n) return;
 	switch (n->kind) {
 		case AST_INTEGER:
 			printf("%d", n->value);
 			break;
 		case AST_FUNC:
-			printf("call(");
+			printf("f%d(", n->value);
 			{
 				ASTNode node = n->left;
 				while (node) {
@@ -76,6 +84,12 @@ void show_ast_node(ASTNode n) {
 				}
 			}
 			printf(")");
+			break;
+		case AST_VAR:
+			printf("a%d", n->value);
+			break;
+		case AST_FREE_VAR:
+			printf("x%d", n->value);
 			break;
 		case AST_OP_ADD:
 			printf("ADD(");

@@ -3,11 +3,28 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 /* prototypes for private functions */
 int pattern_matching(ASTNode node, ASTNode pattern, Rule rule);
 ASTNode bind_free_variables(ASTNode tree, ASTNode bindings[]);
+void substitute_variables(ASTNode tree, int from, int to);
 
+
+Rule create_rule(ASTNode pattern, ASTNode goal, ASTNode freeVars) {
+	Rule r = (Rule)calloc(1, sizeof(struct __rule));
+	r->pattern = copy_ast_node(pattern);
+	r->goal = copy_ast_node(goal);
+
+	while (freeVars) {
+		substitute_variables(r->pattern, freeVars->value, r->numOfFreeVars);
+		substitute_variables(r->goal, freeVars->value, r->numOfFreeVars);
+		r->numOfFreeVars++;
+
+		freeVars = freeVars->left;
+	}
+	return r;
+}
 
 int matches(ASTNode node, Rule rule) {
 	memset(rule->bindings, 0, sizeof(ASTNode) * rule->numOfFreeVars);
@@ -51,6 +68,18 @@ ASTNode bind_free_variables(ASTNode tree, ASTNode bindings[]) {
 	return result;
 }
 
+void substitute_variables(ASTNode tree, int from, int to) {
+	if (!tree) return;
+    if (tree->kind == AST_VAR && tree->value == from) {
+        tree->kind = AST_FREE_VAR;
+        tree->value = to;
+    }
+
+    substitute_variables(tree->left, from, to);
+    substitute_variables(tree->right, from, to);
+}
+
+//////
 ASTNode create_bound_goal(Rule rule) {
 	return bind_free_variables(rule->goal, rule->bindings);
 }

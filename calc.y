@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "ast.h"
+#include "matcher.h"
 #include "symtable.h"
 
 extern ASTNode constant_folding(ASTNode node);
@@ -27,16 +28,20 @@ extern SymbolTable symbols;
 %token EQ "="
 %token LP "("
 %token RP ")"
+%token HAT "^"
 %token ASSIGN ":="
 %token COMMA ","
 %token LF "\n"
 
 %type<node> expr
 %type<node> expr_list
+%type<node> symbol_list
+%type<node> free_vars
 
-%left "+" "-"
 %left "="
+%left "+" "-"
 %left "*" "/"
+%left NEGATE
 
 %%
 
@@ -48,10 +53,16 @@ input
 line
     : expr "\n"
     {
-        show_ast_node($1);
-        printf("\n\t-> ");
-        show_ast_node(constant_folding($1));
-        printf("\n");
+        if ($1) {
+            show_ast_node($1);
+            printf("\n\t-> ");
+            show_ast_node(constant_folding($1));
+            printf("\n");
+        }
+    }
+    | error "\n"
+    {
+        yyerrok;
     }
 
 expr
@@ -88,6 +99,7 @@ expr
         $$ = n;
     }
     | "-" expr
+    %prec NEGATE
     {
         ASTNode n = create_ast_node(AST_OP_MUL, 0);
         set_ast_node_left(n, create_ast_node(AST_INTEGER, -1));
@@ -107,7 +119,6 @@ expr
     }
     | SYMBOL "(" expr_list ")"
     {
-        printf("%s %p\n", $1, symbols);
         int idx = register_sym_table(symbols, $1);
         ASTNode n = create_ast_node(AST_FUNC, idx);
         set_ast_node_left(n, $3);
@@ -118,7 +129,47 @@ expr
         int idx = register_sym_table(symbols, $1);
         $$ = create_ast_node(AST_VAR, idx);
     }
+    | free_vars expr ":=" expr
+    {
+        show_ast_node($2);
+        printf(" := ");
+        show_ast_node($4);
+        printf("\n");
+
+        Rule rule = create_rule($2, $4, $1);
+
+        printf("\t->");
+        show_ast_node(rule->pattern);
+        printf(" := ");
+        show_ast_node(rule->goal);
+        printf("\n");
+        $$ = NULL;
+    }
 ;
+
+free_vars
+    : "^"
+    {
+        $$ = NULL;
+    }
+    | "^" "(" symbol_list ")"
+    {
+        $$ = $3;
+    }
+
+symbol_list
+    : SYMBOL
+    {
+        int idx = register_sym_table(symbols, $1);
+        $$ = create_ast_node(AST_VAR, idx);
+    }
+    | symbol_list "," SYMBOL
+    {
+        int idx = register_sym_table(symbols, $3);
+        $$ = create_ast_node(AST_VAR, idx);
+        set_ast_node_left($$, $1);
+    }
+    ;
 
 expr_list
     : expr
