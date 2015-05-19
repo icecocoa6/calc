@@ -5,8 +5,8 @@ CFLAGS = -Wall
 
 .SUFFIXES: .c .o
 
-calc: $(OBJS)
-	$(CC) -o calc $^ main.o
+calc: $(OBJS) main.o
+	$(CC) -o calc $^
 
 .c.o:
 	$(CC) $(CFLAGS) -c $<

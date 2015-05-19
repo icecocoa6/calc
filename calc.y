@@ -4,8 +4,10 @@
 #include <stdio.h>
 
 #include "ast.h"
+#include "symtable.h"
 
 extern ASTNode constant_folding(ASTNode node);
+extern SymbolTable symbols;
 
 %}
 
@@ -96,10 +98,6 @@ expr
     {
         $$ = $2;
     }
-    | "(" expr_list ")"
-    {
-        $$ = $2;
-    }
     | expr "=" expr
     {
         ASTNode n = create_ast_node(AST_OP_EQ, 0);
@@ -107,11 +105,18 @@ expr
         set_ast_node_right(n, $3);
         $$ = n;
     }
-    | SYMBOL expr
+    | SYMBOL "(" expr_list ")"
     {
-        ASTNode n = create_ast_node(AST_FUNC, 0 /* TODO: proper value */);
-        set_ast_node_left(n, $2);
+        printf("%s %p\n", $1, symbols);
+        int idx = register_sym_table(symbols, $1);
+        ASTNode n = create_ast_node(AST_FUNC, idx);
+        set_ast_node_left(n, $3);
         $$ = n;
+    }
+    | SYMBOL
+    {
+        int idx = register_sym_table(symbols, $1);
+        $$ = create_ast_node(AST_VAR, idx);
     }
 ;
 
