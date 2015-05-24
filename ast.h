@@ -7,6 +7,7 @@ enum {
 	AST_FUNC,
 	AST_VAR,
 	AST_FREE_VAR,
+	AST_LIST,
 	AST_OP_ADD,
 	AST_OP_SUB,
 	AST_OP_MUL,

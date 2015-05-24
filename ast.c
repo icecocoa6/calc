@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 
 ASTNode create_ast_node(int kind, int value) {
 	ASTNode result = (ASTNode)calloc(1, sizeof(struct __ast_node));
@@ -33,11 +34,15 @@ void destroy_ast_node(ASTNode n) {
 }
 
 void set_ast_node_left(ASTNode parent, ASTNode child) {
+	assert(parent);
+	assert(child);
 	parent->left = child;
 	child->parent = parent;
 }
 
 void set_ast_node_right(ASTNode parent, ASTNode child) {
+	assert(parent);
+	assert(child);
 	parent->right = child;
 	child->parent = parent;
 }
@@ -79,22 +84,25 @@ int ast_node_equals(ASTNode a, ASTNode b) {
 /*****/
 
 void show_ast_node(ASTNode n) {
-	if (!n) return;
+	if (!n) {
+		printf("(null)");
+		return;
+	}
 	switch (n->kind) {
 		case AST_INTEGER:
 			printf("%d", n->value);
 			break;
 		case AST_FUNC:
 			printf("f%d(", n->value);
-			{
-				ASTNode node = n->left;
-				while (node) {
-					show_ast_node(node);
-					node = node->left;
-					if (node) printf(",");
-				}
-			}
+			show_ast_node(n->left);
 			printf(")");
+			break;
+		case AST_LIST:
+			show_ast_node(n->right);
+			if (n->left) {
+				printf(",");
+				show_ast_node(n->left);
+			}
 			break;
 		case AST_VAR:
 			printf("a%d", n->value);
