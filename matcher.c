@@ -126,7 +126,7 @@ ASTNode constant_folding(ASTNode node) {
 	ASTNode l = constant_folding(node->left);
 	ASTNode r = constant_folding(node->right);
 
-	if (node->kind != AST_OP_ADD && node->kind != AST_OP_MUL) return node;
+	if (!is_computable_op(node)) return node;
 	if (!is_constant_ast_node(l) || !is_constant_ast_node(r)) return node;
 
 	ASTNode result = NULL;
@@ -134,6 +134,14 @@ ASTNode constant_folding(ASTNode node) {
 		result = create_ast_node(AST_INTEGER, l->value + r->value);
 	} else if (node->kind == AST_OP_MUL) {
 		result = create_ast_node(AST_INTEGER, l->value * r->value);
+	} else if (node->kind == AST_OP_EQ) {
+		result = create_ast_node(AST_INTEGER, l->value == r->value);
+	} else if (node->kind == AST_OP_LT) {
+		result = create_ast_node(AST_INTEGER, l->value < r->value);
+	} else if (node->kind == AST_OP_AND) {
+		result = create_ast_node(AST_INTEGER, l->value && r->value);
+	} else if (node->kind == AST_OP_OR) {
+		result = create_ast_node(AST_INTEGER, l->value || r->value);
 	}
 
 	if (is_left(node)) {

@@ -55,10 +55,17 @@ extern int yydebug;
     LP = 265,
     RP = 266,
     HAT = 267,
-    ASSIGN = 268,
-    COMMA = 269,
-    LF = 270,
-    NEGATE = 271
+    AND = 268,
+    OR = 269,
+    IF = 270,
+    LT = 271,
+    GT = 272,
+    LE = 273,
+    GE = 274,
+    ASSIGN = 275,
+    COMMA = 276,
+    LF = 277,
+    NEGATE = 278
   };
 #endif
 
@@ -73,7 +80,7 @@ union YYSTYPE
 	char string[64];
 	ASTNode node;
 
-#line 77 "calc.tab.h" /* yacc.c:1909  */
+#line 84 "calc.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

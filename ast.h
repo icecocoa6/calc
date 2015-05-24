@@ -12,6 +12,12 @@ enum {
 	AST_OP_MUL,
 	AST_OP_DIV,
 	AST_OP_EQ,
+	AST_OP_GT,
+	AST_OP_LT,
+	AST_OP_GE,
+	AST_OP_LE,
+	AST_OP_AND,
+	AST_OP_OR,
 };
 
 typedef struct __ast_node *ASTNode;
@@ -35,6 +41,7 @@ void set_ast_node_right(ASTNode parent, ASTNode child);
 
 /* cheking information */
 int is_constant_ast_node(ASTNode node);
+int is_computable_op(ASTNode node);
 
 int is_left(ASTNode node);
 int is_right(ASTNode node);

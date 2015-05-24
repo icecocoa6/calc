@@ -22,8 +22,16 @@ int yywrap() {
 ")" return (RP);
 "=" return (EQ);
 "^" return (HAT);
+">" return (GT);
+"<" return (LT);
+"<=" return (LE);
+">=" return (GE);
 ":=" return (ASSIGN);
 "," return (COMMA);
+
+"and" return (AND);
+"or" return (OR);
+"if" return (IF);
 
 [[:digit:]]+ {
 	sscanf(yytext, "%d", &yylval.integer);

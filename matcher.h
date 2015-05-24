@@ -9,6 +9,7 @@ struct __rule {
 	int numOfFreeVars;
 	ASTNode pattern;
 	ASTNode goal;
+	ASTNode condition;
 	ASTNode *bindings;
 };
 

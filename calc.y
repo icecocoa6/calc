@@ -31,6 +31,13 @@ extern int rules_count;
 %token LP "("
 %token RP ")"
 %token HAT "^"
+%token AND "and"
+%token OR "or"
+%token IF "if"
+%token LT "<"
+%token GT ">"
+%token LE "<="
+%token GE ">="
 %token ASSIGN ":="
 %token COMMA ","
 %token LF "\n"
@@ -40,7 +47,8 @@ extern int rules_count;
 %type<node> symbol_list
 %type<node> free_vars
 
-%left "="
+%left "and" "or"
+%left "=" "<" ">" "<=" ">="
 %left "+" "-"
 %left "*" "/"
 %left NEGATE
@@ -132,6 +140,48 @@ expr
     | expr "=" expr
     {
         ASTNode n = create_ast_node(AST_OP_EQ, 0);
+        set_ast_node_left(n, $1);
+        set_ast_node_right(n, $3);
+        $$ = n;
+    }
+    | expr "<" expr
+    {
+        ASTNode n = create_ast_node(AST_OP_LT, 0);
+        set_ast_node_left(n, $1);
+        set_ast_node_right(n, $3);
+        $$ = n;
+    }
+    | expr ">" expr
+    {
+        ASTNode n = create_ast_node(AST_OP_GT, 0);
+        set_ast_node_left(n, $1);
+        set_ast_node_right(n, $3);
+        $$ = n;
+    }
+    | expr "<=" expr
+    {
+        ASTNode n = create_ast_node(AST_OP_LE, 0);
+        set_ast_node_left(n, $1);
+        set_ast_node_right(n, $3);
+        $$ = n;
+    }
+    | expr ">=" expr
+    {
+        ASTNode n = create_ast_node(AST_OP_GE, 0);
+        set_ast_node_left(n, $1);
+        set_ast_node_right(n, $3);
+        $$ = n;
+    }
+    | expr "and" expr
+    {
+        ASTNode n = create_ast_node(AST_OP_AND, 0);
+        set_ast_node_left(n, $1);
+        set_ast_node_right(n, $3);
+        $$ = n;
+    }
+    | expr "or" expr
+    {
+        ASTNode n = create_ast_node(AST_OP_OR, 0);
         set_ast_node_left(n, $1);
         set_ast_node_right(n, $3);
         $$ = n;

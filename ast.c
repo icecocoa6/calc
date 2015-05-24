@@ -46,6 +46,17 @@ int is_constant_ast_node(ASTNode node) {
 	return node && node->kind == AST_INTEGER;
 }
 
+int is_computable_op(ASTNode node) {
+	if (!node) return 0;
+	return
+		node->kind == AST_OP_ADD ||
+		node->kind == AST_OP_MUL ||
+		node->kind == AST_OP_EQ  ||
+		node->kind == AST_OP_LT  ||
+		node->kind == AST_OP_AND ||
+		node->kind == AST_OP_OR;
+}
+
 int is_left(ASTNode node) {
 	if (!node) return 0;
 	if (!node->parent) return 0;
@@ -121,6 +132,48 @@ void show_ast_node(ASTNode n) {
 			break;
 		case AST_OP_EQ:
 			printf("EQ(");
+			show_ast_node(n->left);
+			printf(",");
+			show_ast_node(n->right);
+			printf(")");
+			break;
+		case AST_OP_LT:
+			printf("LT(");
+			show_ast_node(n->left);
+			printf(",");
+			show_ast_node(n->right);
+			printf(")");
+			break;
+		case AST_OP_GT:
+			printf("GT(");
+			show_ast_node(n->left);
+			printf(",");
+			show_ast_node(n->right);
+			printf(")");
+			break;
+		case AST_OP_LE:
+			printf("LE(");
+			show_ast_node(n->left);
+			printf(",");
+			show_ast_node(n->right);
+			printf(")");
+			break;
+		case AST_OP_GE:
+			printf("GE(");
+			show_ast_node(n->left);
+			printf(",");
+			show_ast_node(n->right);
+			printf(")");
+			break;
+		case AST_OP_AND:
+			printf("AND(");
+			show_ast_node(n->left);
+			printf(",");
+			show_ast_node(n->right);
+			printf(")");
+			break;
+		case AST_OP_OR:
+			printf("OR(");
 			show_ast_node(n->left);
 			printf(",");
 			show_ast_node(n->right);
