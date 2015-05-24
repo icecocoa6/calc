@@ -13,7 +13,9 @@ struct __rule {
 	ASTNode *bindings;
 };
 
-Rule create_rule(ASTNode pattern, ASTNode goal, ASTNode freeVars);
+Rule create_rule(ASTNode pattern, ASTNode goal, ASTNode cond, ASTNode freeVars);
+Rule copy_rule(Rule rule);
+void destroy_rule(Rule rule);
 
 ASTNode apply_rule(Rule rule, ASTNode node);
 

@@ -6,11 +6,10 @@
 #include "ast.h"
 #include "matcher.h"
 #include "symtable.h"
+#include "compute.h"
 
 extern ASTNode constant_folding(ASTNode node);
 extern SymbolTable symbols;
-extern Rule rules[256];
-extern int rules_count;
 
 %}
 
@@ -46,6 +45,7 @@ extern int rules_count;
 %type<node> expr_list
 %type<node> symbol_list
 %type<node> free_vars
+%type<node> condition_opt
 
 %left "and" "or"
 %left "=" "<" ">" "<=" ">="
@@ -64,27 +64,7 @@ line
     : expr "\n"
     {
         if ($1) {
-            show_ast_node($1);
-            printf("\n\t-> ");
-
-            ASTNode t = $1;
-            int matched = 1;
-            while (matched) {
-                matched = 0;
-                t = constant_folding(t);
-
-                for (int i = 0; i < rules_count; i++) {
-                    ASTNode tree = apply_rule(rules[i], t);
-                    if (tree) {
-                        t = tree;
-                        matched = 1;
-                        break;
-                    }
-                }
-            }
-
-            show_ast_node(constant_folding(t));
-            printf("\n");
+            compute($1, rules, rules_count, 1);
         }
     }
     | error "\n"
@@ -198,14 +178,14 @@ expr
         int idx = register_sym_table(symbols, $1);
         $$ = create_ast_node(AST_VAR, idx);
     }
-    | free_vars expr ":=" expr
+    | free_vars expr ":=" expr condition_opt
     {
         show_ast_node($2);
         printf(" := ");
         show_ast_node($4);
         printf("\n");
 
-        Rule rule = create_rule($2, $4, $1);
+        Rule rule = create_rule($2, $4, $5, $1);
         rules[rules_count++] = rule;
 
         printf("\t->");
@@ -213,9 +193,25 @@ expr
         printf(" := ");
         show_ast_node(rule->goal);
         printf("\n");
+
+        if ($5) {
+            printf("\tif ");
+            show_ast_node(rule->condition);
+            printf("\n");
+        }
         $$ = NULL;
     }
 ;
+
+condition_opt
+    :
+    {
+        $$ = NULL;
+    }
+    | "if" expr
+    {
+        $$ = $2;
+    }
 
 free_vars
     : "^"
@@ -244,11 +240,14 @@ symbol_list
 expr_list
     : expr
     {
-        $$ = $1;
+        $$ = create_ast_node(AST_LIST, 0);
+        set_ast_node_right($$, $1);
     }
     | expr_list "," expr
     {
-        set_ast_node_left($1, $3);
+        ASTNode n = create_ast_node(AST_LIST, 0);
+        set_ast_node_right(n, $3);
+        set_ast_node_left($1, n);
         $$ = $1;
     }
     ;

@@ -1,5 +1,5 @@
 
-OBJS = lex.yy.o calc.tab.o ast.o matcher.o symtable.o
+OBJS = lex.yy.o calc.tab.o ast.o matcher.o symtable.o compute.o
 CC = clang
 CFLAGS = -Wall
 
