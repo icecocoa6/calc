@@ -118,11 +118,11 @@ int has_contradiction(Rule rule) {
 
 	ASTNode node = bind_free_variables(rule->condition, rule->bindings);
 	node = compute(node, rules, rules_count, 0);
-	int failed = is_constant_ast_node(node) && (node->value == 0);
+	int ok = is_constant_ast_node(node) && (node->value);
 
 	destroy_ast_node(node);
 
-	return failed;
+	return !ok;
 }
 
 //////

@@ -71,6 +71,11 @@ line
     {
         yyerrok;
     }
+    | "\n"
+    {
+    
+    }
+    ;
 
 expr
     : INTEGER
